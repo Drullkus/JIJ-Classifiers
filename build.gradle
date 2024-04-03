@@ -3,7 +3,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.97'
+    id 'net.neoforged.gradle.userdev' version '7.0.80'
 }
 
 version = mod_version
@@ -11,6 +11,9 @@ group = mod_group_id
 
 repositories {
     mavenLocal()
+    maven {
+        url = "https://modmaven.dev/"
+    }
 }
 
 base {
@@ -22,6 +25,11 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 //minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
 //minecraft.accessTransformers.entry public net.minecraft.client.Minecraft textureManager # textureManager
+
+//jarJar.enable()
+//tasks.jarJar.configure {
+//    archiveClassifier = ''
+//}
 
 // Default run configurations.
 // These can be tweaked, removed, or duplicated as needed.
@@ -82,6 +90,13 @@ dependencies {
     // For all intends and purposes: You can treat this dependency as if it is a normal library you would use.
     implementation "net.neoforged:neoforge:${neo_version}"
 
+    implementation "teamtwilight:twilightforest:${twilightforest_version}:universal"
+
+    jarJar("teamtwilight:twilightforest:${twilightforest_version}") {
+        jarJar.ranged(it, "[${project.twilightforest_version},)")
+        jarJar.pin(it, "${project.twilightforest_version}")
+    }
+
     // Example mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
@@ -139,4 +154,8 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+build {
+    dependsOn 'jarJar'
 }
